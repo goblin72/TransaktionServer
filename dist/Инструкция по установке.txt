@@ -1,0 +1,90 @@
+1) Установить JDK 1.6 или выше (http://www.oracle.com/technetwork/java/javase/downloads/index.html)
+2) Установить Томкат 6.X или выше (http://tomcat.apache.org/)
+3) Установить Mysql 5.0 или выше (http://www.mysql.com/)
+
+Создание БД и развертывание модели
+4) создайте базу данных командой create database DBNAME character set utf8;
+ВНИМАНИЕ. Кодировка базы данных UTF-8 это надо учитывать при ее наполнении данными
+5) в папке model дистрибутива откройте на редактирование файл model.cmd, замените в нем значения URL до БД, логина и пароля на ваши
+подстрока которую нужно отредактировать: -url jdbc:mysql://localhost/DBNAME -user root -password root
+6) Замените в model.cmd путь до Java на правильный
+подстрока которую нужно отредактировать: C:\Java\jdk1.6.0_20\bin\java.exe
+7) запустите на исполнение model.cmd
+
+Разворачивание приложения
+8) Создайте папку %TOMCAT_HOME%/conf/TS (где %TOMCAT_HOME% - корневая папка Томката)
+9) Скопируйте в %TOMCAT_HOME%/conf/TS содержимое папки conf дистрибутива
+10) Откройте на редактирование файл %TOMCAT_HOME%/conf/TS/config.properties и задайте актуальные значения параметрам
+
+jdbc.url= УРЛ к БД
+jdbc.username= логин к БД
+jdbc.password= пароль к БД
+jdbc.encoding=UTF-8
+
+email.smtp.server= хост смтп сервера
+email.smtp.protocol=smtp
+email.smtp.port= порт смтп сервера
+email.smtp.user=логин от смтп сервера
+email.smtp.password=пароль от смтп сервера
+email.from= почтовый ящик который будетотправителем писем с чеками
+
+checkTemplate.path= абсолютный путь до папки с шаблонами чеков (в дистрибутиве есть шаблон чека check1.html, скопируйте его в эту папку)
+sign.path= абсолютный путь до папки куда будут сохраняться изображения с подписями
+
+11) Откройте на редактирование файл %TOMCAT_HOME%/conf/TS/log4j.properties и задайте актуальные значения параметрам:
+log4j.appender.logfile.File= абсолютный путь до файла куда будет писаться лог
+
+12) сопируйте содержимое папки lib дистрибутива в %TOMCAT_HOME%/lib
+
+13) Скопируйте TS.war в в %TOMCAT_HOME%/webapps
+
+14) Запустите Томкат (%TOMCAT_HOME%/bin/startup.bat)
+
+15) Откройте браузер и перейдите по УРЛ http://localhost:8080/TS/do (хост и порт в урле актуализируйте)
+Если вы увидели ошибку HTTP Status 405 - Request method 'GET' not supported, то в целом приложении запустилось. 
+
+
+Заполннеие БД тестовыйми данными:
+Шаблоны скриптов:
+Тип банковской карты
+insert into card_type (name, value) values ('АмериканЭкспресс', 3);
+
+Организация
+insert into company (code, comment, contract, inn, name, status) values ('COMPANY1', 'Адрес такойто', 'Договор 1', 'значение ИНН', 'ООО РОМАШКА', 'ENABLED');
+Значения статусов СТРОГО:  ENABLE,DISABLE
+
+Точка приема (физ устройство)
+insert into point (company_id, pointId, status) values (1, 'УНИК. ИДЕНФТИКАТОР УСТРОЙСТВА', 'TEST');
+Значения статусов СТРОГО:  TEST, ACTIVE, INACTIVE, BLOCKED
+company_id - иденфтикатор (поле id) компании-владельца данного физ устройства
+
+Банковский номер
+insert into bank (checkTemplate, emplId, outputCode, terminalId) values (?, ?, ?, ?)
+checkTemplate имя файла с шаблоном чека например check1.html
+emplId - иденфтикатор кассира
+outputCode - код исходящего адаптера (сейчас только TEST)
+terminalId - идентификатор виртуального терминала
+
+Список IP адресов банковсого шлюза (пока информация не используется, можно не заполнять)
+insert into ip (bank_id, host, port) values (?, ?, ?)
+
+БИНы банка
+insert into bin (bank_id, bin) values (?, ?)
+
+Создание срипта приема платежей
+insert into script values ( );
+да, в нем нет полей кроме идентифкатора
+
+Связка скрипта и банковского номера
+insert into script_bank (script_id, bank_id) values (?, ?)
+
+Связка скрипта с типом карты приема
+insert into script_card_type (script_id, card_type_id) values (?, ?)
+
+Связка скрипта с компанией
+insert into company_script (company_id, script_id) values (?, ?)
+
+
+ПРИЛОЖЕНИЕ ГОТОВО К РАБОТЕ.
+Запросы согласно протоколу необходимо слать на УРЛ http://localhost:8080/TS/do (хост и порт в урле актуализируйте)
+Для максимально эффективного исправления возможных ошибок, к письмам с их описнаием прикладывайте пожалуста логи.

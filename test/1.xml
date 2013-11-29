@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<response error="0">
+    <allowableBanks>
+        <allowableBank>1</allowableBank>
+        <allowableBank>2</allowableBank>
+    </allowableBanks>
+</response>

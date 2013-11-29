@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="Windows-1251"?>
+<project name="TS" basedir=".">
+    <property environment="env"/>
+
+    <property file="E:/dev/tools/apache-tomcat-6.0.20/conf/TS/config.properties"/>
+    <property name="dist.home" value="${basedir}/.dist/dist"/>
+    <property name="test.home" value="${basedir}/.dist/test"/>
+
+    <property name="temp" value="${dist.home}/.temp"/>
+
+    <path id="hibernate-update.classpath">
+        <fileset dir="${basedir}/web/WEB-INF/lib" includes="*.jar"/>
+        <fileset dir="${dist.home}" includes="*.jar"/>
+    </path>
+
+    <target name="Install.Model" depends="compile">
+
+        <echo message="${jdbc.url}"/>
+        <echo message="com.mysql.jdbc.Driver"/>
+        <java failonerror="true" fork="true"
+              classname="com.transactions.common.HibernateUpdate"
+              classpathref="hibernate-update.classpath">
+            <arg value="-url"/>
+            <arg value="${jdbc.url}"/>
+            <arg value="-user"/>
+            <arg value="${jdbc.username}"/>
+            <arg value="-password"/>
+            <arg value="${jdbc.password}"/>
+            <arg value="-driver"/>
+            <arg value="com.mysql.jdbc.Driver"/>
+            <arg value="-dialect"/>
+            <arg value="org.hibernate.dialect.MySQLDialect"/>
+            <arg value="-jar"/>
+            <arg value="${dist.home}/ts-db-model.jar"/>
+            <arg value="-locale"/>
+            <arg value="EN"/>
+        </java>
+    </target>
+
+    <target name="Make" depends="compile" description="Сборка компонента">
+        <!--делат клиентскую jar ку-->
+        <!--<mkdir dir="${dist.home}"/>-->
+        <!--<delete dir="${dist.home}/temp"/>-->
+        <!--<mkdir dir="${dist.home}/temp"/>-->
+        <!--<javac srcdir="${server.api.src}" destdir="${dist.home}/temp" encoding="utf-8" debug="true">-->
+            <!--<classpath>-->
+                <!--<fileset dir="${basedir}/web/WEB-INF/lib" includes="*.jar"/>-->
+                <!--<fileset dir="${tomcat.home}/lib" includes="*.jar"/>-->
+            <!--</classpath>-->
+        <!--</javac>-->
+        <!--<jar basedir="${dist.home}/temp" destfile="${dist.home}/icus-client.jar"/>-->
+        <!--<copy todir="${basedir}/../UserInterface/web/WEB-INF/lib">-->
+            <!--<fileset file="${dist.home}/icus-client.jar"/>-->
+        <!--</copy>-->
+        <!--<copy todir="${basedir}/../Administrator/web/WEB-INF/lib">-->
+            <!--<fileset file="${dist.home}/icus-client.jar"/>-->
+        <!--</copy>-->
+        <!--<delete dir="${dist.home}/temp"/>-->
+        <!--<delete file="${dist.home}/icus-client.jar"/>-->
+        <!--&lt;!&ndash;делает варку&ndash;&gt;-->
+
+        <!--&lt;!&ndash;<delete dir="${basedir}/web/WEB-INF/lib" failonerror="false"/>&ndash;&gt;-->
+        <!--&lt;!&ndash;<mkdir dir="${basedir}/web/WEB-INF/lib"/>&ndash;&gt;-->
+
+        <!--<copy todir="${basedir}/web/WEB-INF/lib">-->
+            <!--<fileset dir="${basedir}/lib" includes="*.jar"/>-->
+            <!--<fileset dir="${lib-path.hibernate}" includes="*.jar"/>-->
+            <!--<fileset dir="${lib-path.postgres}" includes="*.jar"/>-->
+            <!--&lt;!&ndash;<fileset dir="${lib-path.j2ee}" includes="*.jar"/>&ndash;&gt;-->
+            <!--<fileset dir="${lib-path.jaxws}" includes="*.jar"/>-->
+            <!--<fileset dir="${lib-path.log4j}" includes="*.jar"/>-->
+            <!--<fileset dir="${lib-path.slf4j}" includes="*.jar"/>-->
+            <!--<fileset dir="${sigma.home}" includes="sigma*.jar" excludes="sigma-logger.jar"/>-->
+        <!--</copy>-->
+        <jar basedir="${basedir}/web" file="${dist.home}/TS.war">
+        </jar>
+        <!--<copy todir="${dist.home}">-->
+            <!--<fileset dir="${basedir}/../" includes="*.xml"/>-->
+        <!--</copy>-->
+        <!--<version jar="${dist.home}/IKUSServer.war" revision="${build.revision}" version="${build.release}"/>-->
+
+        <!--<includesfile name="*.jar"/>-->
+        <!--</delete>-->
+        <!--<delete file="${dist.home}/ikus-server-model.jar"/>-->
+    </target>
+
+    <target name="compile">
+        <delete dir="${basedir}/web/WEB-INF/classes" failonerror="false"/>
+        <mkdir dir="${basedir}/web/WEB-INF/classes"/>
+        <delete dir="${dist.home}" failonerror="false"/>
+        <mkdir dir="${dist.home}"/>
+
+        <javac srcdir="${basedir}/src/com/transactions;${basedir}/test/com/transactions/input"
+               destdir="${basedir}/web/WEB-INF/classes" encoding="utf-8" debug="true">
+            <classpath>
+                <fileset dir="${basedir}/web/WEB-INF/lib" includes="*.jar"/>
+            </classpath>
+        </javac>
+        <mkdir dir="${basedir}/web/WEB-INF/classes/META-INF"/>
+        <copy todir="${basedir}/web/WEB-INF/classes/META-INF">
+            <fileset dir="${basedir}/src/META-INF"/>
+        </copy>
+        <!--<copy todir="${basedir}/web/WEB-INF/classes/">-->
+            <!--<fileset dir="${basedir}/test" includes="*.xml"/>-->
+        <!--</copy>-->
+        <jar basedir="${basedir}/web/WEB-INF/classes" file="${dist.home}/ts-db-model.jar"/>
+
+        <delete dir="${basedir}/web/WEB-INF/classes" failonerror="false"/>
+        <mkdir dir="${basedir}/web/WEB-INF/classes"/>
+
+        <javac srcdir="${basedir}/src" destdir="${basedir}/web/WEB-INF/classes" encoding="utf-8" debug="true">
+            <classpath>
+                <fileset dir="${basedir}/web/WEB-INF/lib" includes="*.jar"/>
+            </classpath>
+        </javac>
+        <mkdir dir="${basedir}/web/WEB-INF/classes/META-INF"/>
+        <copy todir="${basedir}/web/WEB-INF/classes/META-INF">
+            <fileset dir="${basedir}/src/META-INF"/>
+        </copy>
+
+        <!--<jar basedir="${basedir}/web/WEB-INF/classes" file="${dist.home}/ikus-server-model.jar"/>-->
+    </target>
+
+    <!--<target name="tomcat.replace">-->
+    <!--<echo file="${log.file}" append="true">-->
+    <!--Module installed IKUSServer.war-->
+    <!--</echo>-->
+    <!--<delete file="${server.tomcat.home}/webapps/IKUSServer.war"/>-->
+    <!--<delete dir="${server.tomcat.home}/webapps/IKUSServer"/>-->
+    <!--<copy todir="${server.tomcat.home}/webapps">-->
+    <!--<fileset file="${dist.home}/IKUSServer.war"/>-->
+    <!--</copy>-->
+    <!--<unzip src="${dist.home}/IKUSServer.war" dest="${server.tomcat.home}/webapps/IKUSServer"/>-->
+    <!--</target>-->
+</project>

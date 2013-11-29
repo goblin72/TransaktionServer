@@ -1,6 +1,7 @@
 *.class
 
-# Package Files #
-*.jar
-*.war
-*.ear
+# Idea Files #
+*.iws
+
+# Log files#
+*.log
